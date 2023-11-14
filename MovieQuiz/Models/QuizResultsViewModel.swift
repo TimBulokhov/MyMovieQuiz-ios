@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+struct QuizResultsViewModel {
+    let alertName: String
+    let resultText: String
+    let repeatButtonText: String
+}
