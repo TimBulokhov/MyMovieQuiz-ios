@@ -8,6 +8,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol? = QuestionFactory()
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter?
+    private var statisticService: StatisticService = StatisticServiceImplementation()
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,12 +56,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     private func showNextQuestionOrResults() {
         if  indexOfCurrentQuestion == questionsAmount - 1 {
-            let userResultText = countOfCorrectAnswers == questionsAmount ?
-            "Nice, your score is 10/10!" :
-            "Your score is \(countOfCorrectAnswers)/10"
-            showAlert (quizEnd: QuizResultsViewModel(
+            statisticService.store(correct: countOfCorrectAnswers, total: questionsAmount)
+            
+            showAlert(quizEnd: QuizResultsViewModel(
                 alertName: "End of round!",
-                resultText: userResultText,
+                resultText: """
+                           Your score is \(countOfCorrectAnswers)/10
+                           Count of played rounds: \(statisticService.gamesCount)
+                           Your record \n\(statisticService.bestGame.convertToString()))
+                           Total accuracy is \(Int(statisticService.totalAccuracy))%
+                           """,
                 repeatButtonText: "Play again?"))
             imageView.layer.borderWidth = 0
             imageView.layer.borderColor = UIColor.clear.cgColor
