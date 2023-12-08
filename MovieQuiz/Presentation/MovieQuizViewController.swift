@@ -1,6 +1,24 @@
 import UIKit
 //Порядок - переменные, overrides+inits, методы, outlets+actions
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    // MARK: - Private Properties
+    private var indexOfCurrentQuestion = 0
+    private var countOfCorrectAnswers = 0
+    private let questionsAmount: Int = 10
+    private var questionFactory: QuestionFactoryProtocol? = QuestionFactory()
+    private var currentQuestion: QuizQuestion?
+    private var alertPresenter: AlertPresenter?
+    private var statisticService: StatisticService = StatisticServiceImplementation()
+    // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        questionFactory = QuestionFactory()
+        questionFactory?.delegate = self
+        questionFactory?.requestNextQuestion()
+        alertPresenter = AlertPresenter(mainView: self)
+        imageView.layer.cornerRadius = 20
+    }
+    // MARK: - Delegate Function.
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
             return
@@ -11,18 +29,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             self?.showQuestion(quiz: viewModel)
         }
     }
-    private var indexOfCurrentQuestion = 0
-    private var countOfCorrectAnswers = 0
-    private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactory = QuestionFactory()
-    private var currentQuestion: QuizQuestion?
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        questionFactory = QuestionFactory()
-        questionFactory.delegate = self
-        questionFactory.requestNextQuestion()
-        imageView.layer.cornerRadius = 20
-    }
+    // MARK: - PrivateFunctions
     private func showQuestion(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.question
@@ -30,42 +37,41 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         buttonNo.isEnabled = true
         buttonYes.isEnabled = true
     }
-    private func showAlert(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
-            title: result.alertName,
-            message: result.resultText,
-            preferredStyle: .alert)
-        let action = UIAlertAction(title: result.repeatButtonText, style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.countOfCorrectAnswers = 0
-            self.indexOfCurrentQuestion = 0
-            questionFactory.requestNextQuestion()
-        }
-        alert.addAction(action)
-        self.present(alert, animated: true, completion: nil)
-    }
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let quizStep = QuizStepViewModel(
+        QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(indexOfCurrentQuestion+1) / \(questionsAmount)")
-        return quizStep
+    }
+    private func showAlert(quizEnd quiz: QuizResultsViewModel) {
+        let alertModel = AlertModel(title: quiz.alertName,
+                                    message: quiz.resultText,
+                                    buttonText: quiz.repeatButtonText,
+                                    completion: {[weak self] in
+            self?.indexOfCurrentQuestion = 0
+            self?.countOfCorrectAnswers = 0
+            self?.questionFactory?.requestNextQuestion()
+        })
+        alertPresenter?.newAlert(data: alertModel)
     }
     private func showNextQuestionOrResults() {
         if  indexOfCurrentQuestion == questionsAmount - 1 {
-            let userResultText = countOfCorrectAnswers == questionsAmount ?
-            "Nice, your score is 10/10!" :
-            "Your score is \(countOfCorrectAnswers)/10"
-            let answerViewModel = QuizResultsViewModel(
+            statisticService.store(correct: countOfCorrectAnswers, total: questionsAmount)
+            
+            showAlert(quizEnd: QuizResultsViewModel(
                 alertName: "End of round!",
-                resultText: userResultText,
-                repeatButtonText: "Play again?")
-            showAlert(quiz: answerViewModel)
+                resultText: """
+                           Your score is \(countOfCorrectAnswers)/10
+                           Count of played rounds: \(statisticService.gamesCount)
+                           Your record \n\(statisticService.bestGame.convertToString()))
+                           Total accuracy is \(Int(statisticService.totalAccuracy))%
+                           """,
+                repeatButtonText: "Play again?"))
             imageView.layer.borderWidth = 0
             imageView.layer.borderColor = UIColor.clear.cgColor
         } else {
             indexOfCurrentQuestion+=1
-            self.questionFactory.requestNextQuestion()
+            questionFactory?.requestNextQuestion()
             imageView.layer.borderWidth = 0
             imageView.layer.borderColor = UIColor.clear.cgColor
         }
