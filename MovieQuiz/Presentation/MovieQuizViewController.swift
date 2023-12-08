@@ -5,18 +5,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var indexOfCurrentQuestion = 0
     private var countOfCorrectAnswers = 0
     private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol? = QuestionFactory()
+    private var questionFactory: QuestionFactory?
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticService = StatisticServiceImplementation()
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        questionFactory = QuestionFactory()
-        questionFactory?.delegate = self
-        questionFactory?.requestNextQuestion()
-        alertPresenter = AlertPresenter(mainView: self)
+       
         imageView.layer.cornerRadius = 20
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        statisticService = StatisticServiceImplementation()
+        alertPresenter = AlertPresenter(mainView: self)
+
+        showLoadingIndicator()
+        questionFactory?.loadData()
     }
     // MARK: - Delegate Function.
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -38,10 +41,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         buttonYes.isEnabled = true
     }
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+        return QuizStepViewModel(
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(indexOfCurrentQuestion+1) / \(questionsAmount)")
+            questionNumber: "\(indexOfCurrentQuestion + 1)/\(questionsAmount)")
     }
     private func showAlert(quizEnd quiz: QuizResultsViewModel) {
         let alertModel = AlertModel(title: quiz.alertName,
@@ -91,11 +94,38 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             self.showNextQuestionOrResults()
         }
     }
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    private func showNetworkError(message: String) {
+        let model = AlertModel(title: "Error",
+                               message: message,
+                               buttonText: "Please, try again :(") { [weak self] in
+            guard let self = self else { return }
+            
+            self.indexOfCurrentQuestion = 0
+            self.countOfCorrectAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+        
+        alertPresenter?.newAlert(data: model)
+    }
     @IBOutlet private weak var buttonNo: UIButton!
     @IBOutlet private weak var buttonYes: UIButton!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else {
             return
