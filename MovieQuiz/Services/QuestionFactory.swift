@@ -1,22 +1,17 @@
-//
-//  QuestionFactory.swift
-//  MovieQuiz
-//
-//  Created by Timofey Bulokhov on 14.11.2023.
-//
-
 import Foundation
 
-class QuestionFactory: QuestionFactoryProtocol {
-    private let moviesLoader: MoviesLoading
-    weak var delegate: QuestionFactoryDelegate?
+class QuestionFactory: QuestionFactoryProtocol{
     
-    init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
+    private let moviesLoader: MoviesLoading
+    private weak var delegate: QuestionFactoryDelegate?
+    private var movies: [MostPopularMovie] = []
+    
+    
+    init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate) {
         self.moviesLoader = moviesLoader
         self.delegate = delegate
     }
-    private var movies: [MostPopularMovie] = []
-
+    
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
             DispatchQueue.main.async {
@@ -30,7 +25,8 @@ class QuestionFactory: QuestionFactoryProtocol {
                 }
             }
         }
-    } 
+    }
+    
     func requestNextQuestion() {
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
@@ -39,9 +35,9 @@ class QuestionFactory: QuestionFactoryProtocol {
             guard let movie = self.movies[safe: index] else { return }
             
             var imageData = Data()
-           
-           do {
-                imageData = try Data(contentsOf: movie.imageURL)
+            
+            do {
+                imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
             }
@@ -51,30 +47,28 @@ class QuestionFactory: QuestionFactoryProtocol {
                 let ratingInQuestion = Float.random(in: 5.5..<10)
                 let text = String(format: "Рейтинг этого фильма меньше чем %.1f?", ratingInQuestion)
                 let correctAnswer = rating < ratingInQuestion
-                
                 let question = QuizQuestion(image: imageData,
                                             text: text,
-                                            isAnswerCorrect: correctAnswer)
+                                            correctAnswer: correctAnswer)
                 
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
                     self.delegate?.didReceiveNextQuestion(question: question)
                 }
-            }
-            else {
+            } else { 
                 let rating = Float(movie.rating) ?? 0
                 let ratingInQuestion = Float.random(in: 5.5..<10)
                 let text = String(format: "Рейтинг этого фильма больше чем %.1f?", ratingInQuestion)
                 let correctAnswer = rating > ratingInQuestion
-                
                 let question = QuizQuestion(image: imageData,
                                             text: text,
-                                            isAnswerCorrect: correctAnswer)
+                                            correctAnswer: correctAnswer)
                 
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
                     self.delegate?.didReceiveNextQuestion(question: question)
                 }
+                
             }
         }
     }
