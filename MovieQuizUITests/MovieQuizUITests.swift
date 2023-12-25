@@ -71,7 +71,7 @@ final class MovieQuizUITests: XCTestCase {
         
         XCTAssertTrue(alert.exists)
         XCTAssertTrue(alert.label == "End of round!")
-        XCTAssertTrue(alert.buttons.firstMatch.label == "Play again?")
+        XCTAssertTrue(alert.buttons.firstMatch.label == "Play Again?")
     }
 
     func testAlertDismiss() {
