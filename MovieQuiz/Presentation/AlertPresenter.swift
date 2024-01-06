@@ -5,24 +5,27 @@
 //  Created by Timofey Bulokhov on 17.11.2023.
 //
 
-import Foundation
 import UIKit
-class AlertPresenter {
-    weak var mainView: UIViewController?
+
+final class AlertPresenter{
+    private weak var viewController: UIViewController?
     
-    init(mainView: UIViewController? = nil) {
-        self.mainView = mainView
+    init(viewController: UIViewController? = nil){
+        self.viewController = viewController
     }
-    
-    func newAlert(data: AlertModel) {
+}
+
+extension AlertPresenter: AlertPresenterProtocol{
+    func showAlert(alertModel: AlertModel) {
         let alert = UIAlertController(
-            title: data.title,
-            message: data.message,
+            title: alertModel.title,
+            message: alertModel.message,
             preferredStyle: .alert)
-        let action = UIAlertAction(title: data.buttonText, style: .default) { _ in
-            data.completion()
+        let action = UIAlertAction(title: alertModel.buttonText, style: .default) {_ in
+            alertModel.completion()
         }
+        alert.view.accessibilityIdentifier = "Game results"
         alert.addAction(action)
-        mainView?.present(alert, animated: true, completion: nil)
+        viewController?.present(alert, animated: true)
     }
 }

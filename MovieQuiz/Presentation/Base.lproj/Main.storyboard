@@ -40,6 +40,9 @@
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="1/10" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fTm-TH-EbZ" userLabel="Index Label">
                                                 <rect key="frame" x="338" y="0.0" width="36" height="23.5"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="Index">
+                                                    <bool key="isElement" value="YES"/>
+                                                </accessibility>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <color key="textColor" name="YP White"/>
                                                 <nil key="highlightedColor"/>
@@ -49,6 +52,7 @@
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vDl-v6-i4r" userLabel="Preview Image">
                                         <rect key="frame" x="0.0" y="43.5" width="374" height="561"/>
                                         <color key="backgroundColor" name="YP White"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="Poster"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="vDl-v6-i4r" secondAttribute="height" multiplier="2:3" id="qKV-EU-eYt"/>
                                         </constraints>
@@ -65,6 +69,7 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CyK-3S-IdQ" userLabel="Кнопка Нет">
                                                 <rect key="frame" x="0.0" y="0.0" width="177" height="60"/>
                                                 <color key="backgroundColor" name="YP White"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="No"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="60" id="pnd-Ik-eDd"/>
                                                 </constraints>
@@ -79,12 +84,13 @@
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
                                                 <connections>
-                                                    <action selector="noButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="MKj-LH-z2a"/>
+                                                    <action selector="noButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ci8-Ta-oHP"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e9u-cd-bmA" userLabel="Кнопка Да">
                                                 <rect key="frame" x="197" y="0.0" width="177" height="60"/>
                                                 <color key="backgroundColor" name="YP White"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="Yes"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="Да">
@@ -96,7 +102,7 @@
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
                                                 <connections>
-                                                    <action selector="yesButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hHA-6p-0FD"/>
+                                                    <action selector="yesButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eNz-rt-pj3"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -123,12 +129,12 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="activityIndicator" destination="at3-J2-4ms" id="kfc-97-t0R"/>
-                        <outlet property="buttonNo" destination="CyK-3S-IdQ" id="s6d-fj-zXw"/>
-                        <outlet property="buttonYes" destination="e9u-cd-bmA" id="yie-dr-wsE"/>
-                        <outlet property="counterLabel" destination="fTm-TH-EbZ" id="PX2-ZH-BQr"/>
-                        <outlet property="imageView" destination="vDl-v6-i4r" id="kPa-cp-9G6"/>
-                        <outlet property="textLabel" destination="KIc-rU-MzC" id="H8U-6O-0Z4"/>
+                        <outlet property="activityIndicator" destination="at3-J2-4ms" id="QHn-oz-pgy"/>
+                        <outlet property="counterLabel" destination="fTm-TH-EbZ" id="NAe-Vl-Rhj"/>
+                        <outlet property="imageView" destination="vDl-v6-i4r" id="xcr-rv-dUW"/>
+                        <outlet property="noButton" destination="CyK-3S-IdQ" id="BUq-Y8-vgo"/>
+                        <outlet property="textLabel" destination="KIc-rU-MzC" id="Ie1-Tf-3cs"/>
+                        <outlet property="yesButton" destination="e9u-cd-bmA" id="JLa-fR-kbh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -138,7 +144,7 @@
     </scenes>
     <resources>
         <namedColor name="YP Black">
-            <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.10199999809265137" green="0.10599999874830246" blue="0.13300000131130219" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="YP White">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
